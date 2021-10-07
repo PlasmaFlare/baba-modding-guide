@@ -1,0 +1,254 @@
+THESE CAN ONLY BE USED WHILE PLAYING A LEVEL:
+	OBJECTS:
+		MF_emptycreate( object(str), x(int), y(int) ) -> fixed(int)	// Creates an in-game object at tile x,y and returns its fixed value & calls setundo(1) (note: the position doesn't respect levelrotation and is only visual, so it may be smart to set the x and y to negative values)
+		MF_findfixed( fixed(int) ) -> fixed(int)/nil		// Returns the fixed value of an object if it exists (used to detect if an object has disappeared)
+		MF_getfixed( id(int) ) -> fixed(int)/nil			// Returns the fixed value of an object based on its ID
+		MF_getunits() -> { fixed(int) }						// Returns a table of the fixed values of all objects currently in the level
+		MF_remove( fixed(int) )								// Destroys an object and calls setundo(1)
+		MF_resetobjectpos( fixed(int) )						// Refreshes the positioning of an object
+		MF_specialremove( fixed(int), type(int) )			// Destroys an object with a special effect and calls setundo(1)
+
+	MAP-RELATED:
+		MF_findgates() -> { fixed(int) }					// Returns a table of the fixed values of all unresolved path objects (i.e. gates) in the level
+		MF_findlevelunit( level(str) ) -> { fixed(int) }	// Returns a table of the fixed values of all objects that lead to a specific level (by filename, without the extension)
+		MF_findpaths( x(int), y(int) ) -> { fixed(int) }	// Returns a table of the fixed values of all path objects on a specific tile
+		MF_findpath_id( fixed(int) ) -> fixed(int)			// Returns the fixed value of the object associated with a path object (i.e. the visual object associated with a gate)
+		MF_gateeffect( fixed(int), count(int), type(int) )	// Creates the rotating particle effect seen when a gate opens based on the gate's fixed value (type 0 = spores, 1 = flowers, 2 = orbs)
+		MF_savelevel( fixed(int), completion(int) )			// Sets the completion status of the level that an object leads to (0 = invisible, 1 = visible, 2 = open, 3 = completed)
+		MF_savepath( fixed(int), completion(int) )			// Sets the completion status of a path object (0 = closed, 1 = open)
+
+	GRAPHICS:
+		PARTICLES:
+			MF_particle( name(str), x(int), y(int), colour_x(int), colour_y(int), layer(int) ) -> fixed(int)/nil	// Creates a single particle at tile x,y and randomizes its position within the tile
+			MF_particles( name(str), x(int), y(int), count(int), colour_x(int), colour_y(int), layer(int), type(int) )	// Creates several particles at tile x,y (type 0 = ignore zoom & level rotation, 1 = abide to zoom & level rotation)
+			MF_particles_for_unit( name(str), x(int), y(int), count(int), colour_x(int), colour_y(int), layer(int), type(int), fixed(int) )	// Creates several particles at tile x,y associated with an object (type 0 = ignore zoom & level rotation, 1 = abide to zoom & level rotation)
+			MF_staticparticle( name(str), x(int), y(int), colour_x(int), colour_y(int), layer(int) ) -> fixed(int)/nil	// Creates a single particle at tile x,y
+		
+		MF_removeblockeffect( fixed(int) )					// Removes the "rule disabled" crosses. If parameter 1 is zero, removes all of them, otherwise only the one associated with the object with that fixed value
+		MF_scrollroom( x(int), y(int) )						// Offsets the room by x,y pixels and calls updatescreen(x,y)
+		MF_animframe( fixed(int), frame(int) )				// Sets the animation (= wobble) frame of an object (frame values can be 0, 1 or 2)
+		MF_backcolour( x(int), y(int) )						// Sets the background colour to the palette value at x,y
+		MF_backcolour_dim( x(int), y(int) )					// Sets the background colour to 25% of the palette value at x,y
+		MF_levelrotation( angle(int) )						// Rotates the level to a given angle (in degrees)
+		MF_setart( image(int), text(str) )					// Sets the image and text shown in Gallery
+		MF_setroomoffset( x(int), y(int) )					// Sets the room offset to x,y and calls updatescreen(x,y)
+
+	AUDIO:
+		MF_musicstate( status(int) )						// Sets the music status (remind me to check what this means)
+		MF_sound( sound(int) )								// Sets the movement sound this turn (look into values.int to see the options)
+
+	3D EFFECT:
+		MF_closevision()									// Stops the 3D effect
+		MF_setshadervar( fixed(int), variable(str), value(float) )	// Sets a shader variable's value for an object
+		MF_setupvision( fixed(int) )						// Starts the 3D effect, with a specific object as the one in control
+		MF_setupvision_single( fixed(int) )					// Activates the distortion shader used by the 3D effect for an object
+		MF_updatevision( dir(int) )							// Changes the direction the player is facing when using the 3D effect
+		MF_updatevisionpos( x(int), y(int) )				// Moves the camera to x,y when using the 3D effect
+
+	GAMEPLAY LOGGING:
+		MF_log( type(str), subtype(str), details(str) )		// Logs an event
+		MF_resetlog()										// Empties the log
+		MF_savelog()										// Saves current log (located in Baba Is You\Logs\)
+
+	GAMEPLAY:
+		MF_allisdone()										// Starts the All Is Done cutscene
+		MF_bonus( status(int) )								// Sets the status of the bonus collection in the current level (0 = bonus not collected, 1 = bonus collected)
+		MF_credits( status(int) )							// Does mysterious credits magic related to the ending
+		MF_done_single()									// Marks the current level/levelpack as having been All Is Done'd
+		MF_end()											// Starts the ending cutscene
+		MF_end_single()										// Marks the current level/levelpack as having been End'd
+		MF_intro()											// Starts the intro cutscene
+		MF_levelconversion()								// Starts the level conversion cutscene
+		MF_restart( immediate(bool) )						// Restarts the level (false = ask first, true = just restart)
+		MF_update()											// Handles a large chunk of the per-turn logic
+		MF_win()											// Wins the current level
+
+	HACKS:
+		MF_menuselector_hack( value(int) )					// Deprecated, probably doesn't do anything
+
+THESE CAN BE USED WHENEVER:
+	EDITOR:
+		OBJECT PALETTE:
+			MF_currobjlist_back( x(int), y(int), style(int) ) -> fixed(int)	// Creates one of the object palette tile backgrounds at x,y (in pixels) (style 0 = large, 1 = small)
+			MF_currobjlist_backdel()										// Deletes all the object palette tile backgrounds
+			MF_getobjbuttonid( id(str) ) -> fixed(int)/0					// Returns the fixed value of an object palette / object list button based on its id (BUTTONFUNC) string
+			MF_positioncurrobjselector()									// Positions the object palette cursor based on editor4.strings[EDITOR_CURROBJTARGET]
+			MF_setbuttongrid( fixed(int), x(int), y(int), target(str) )		// Sets the metadata of an object palette button
+			MF_setobjlisttopleft( x(int), y(int) )							// Sets the x,y position of the top-left corner of the object palette
+			MF_updateobjlistname_byname( oldtarget(str), newtarget(str) )	// Updates an object palette button's metadata
+		
+		QUICKBAR:
+			MF_addquickbar( id(int), object(str), locked(int) )	// Sets the status of a quickbar slot based on its id (0 - 9)
+			MF_hotbar_empty( id(int) )							// Empties a quickbar slot
+			MF_hotbar_lock( id(int), locked(int) )				// Sets the lock status of a quickbar slot
+			MF_removequickbar( object(str) )					// Removes an object from the quickbar entirely
+		
+		EDITOR VIEW:
+			MF_editormarker( x(int), y(int) )												// Creates an editor tool indicator on tile x,y
+			MF_findunit_editor( object(str), x(int), y(int), layer(int) ) -> fixed(int)/0	// Returns the fixed value of an object on a specific tile and layer
+			MF_leveldata( fixed(int) )														// Gets the metadata of a level icon
+			MF_massdir( layer(int), x(int), y(int) )										// Displays an arrow showing the direction of a tile if it contains an object
+			MF_movetileplacer( x(int), y(int) )												// Moves the editor cursor to x,y
+			MF_pickedtile() -> name(str)													// Returns the currently-picked tile
+			MF_pickobject( name(str) )														// Picks a specific object and updates the quickbar accordingly
+			MF_showtileplacer( status(int) )												// Sets the forced visibility status of the editor cursor (0 = normal, 1 = always visible)
+		
+		MF_loadcolourselector( fixed(int), filepath(str) )		// Loads a specific image file to a palette preview object
+		MF_tutorialbackground( status(int), hidetext(int) )		// Sets the status of the tutorial background mask and whether text that's not in the tutorial is visible or not (status 0 = invisible, 1 = visible) (hidetext 0 = don't hide text, 1 = hide text)
+		MF_tutorialbackgroundfade( value(int) )					// Sets the blend coefficient of the tutorial background mask (0 - 255)
+
+	LEVEL:
+		MAP ARRAY:
+			MF_getsublayer( layer(int), x(int), y(int) ) -> value(int)				// Returns the direction value of a tile on a specific layer
+			MF_loadtilemap( file(str) )												// Loads a specific .l array
+			MF_setsublayer( sublayer(int), x(int), y(int), layer(int), value(int) )	// Sets the value of a sublayer of a tile on a specific layer (the game currently only has one sublayer with id 0, which stores the direction values of the editor tiles)
+			MF_sublayer( sublayer(int), x(int), y(int), value(int) )				// Same as MF_setsublayer but using the most-recently edited layer (probably not worth using)
+		
+		MF_clearborders()										// Removes all the edge objects (can cause lua errors if they're in the units table)
+
+	OBJECTS:
+		CREATION:
+			MF_create( object(str) ) -> fixed(int)				// Creates an in-game object and returns its fixed value
+			MF_effectcreate( object(str) ) -> fixed(int)		// Creates a particle object and returns its fixed value
+			MF_specialcreate( object(str) ) -> fixed(int)		// Creates a non-in-game object and returns its fixed value
+		
+		DELETION:
+			MF_cleanremove( fixed(int) ) -> name(str)			// Removes an in-game object and returns its UNITNAME
+			MF_cleanspecialremove( fixed(init) ) -> group(str)	// Removes a non-in-game object and returns its GROUP/BUTTONID
+			MF_delete( group(str) )								// Removes all UI elements (buttons etc)  based on their GROUP/BUTTONID
+		
+		DECORS:
+			MF_cleandecors()									// Removes all decorative objects (WARNING, NOT FINISHED)
+			MF_finddecor( fixed(int) ) -> fixed(int)			// Returns the fixed value of a decorative object based on the fixed value of the object it belongs to (WARNING, NOT FINISHED)
+		
+		MF_findspecial( group(str) ) -> { fixed(int) }			// Returns a table of all non-in-game objects that have a specific GROUP/BUTTONID value
+		MF_findunit_fixed( fixed(int) ) -> exists(bool)			// Returns whether an in-game object can be found with a specific fixed value
+
+	AUDIO:
+		MF_channelvolume( channel(int), volume(int) )			// Sets the volume of a channel to a given value (maximum is the music volume in settings)
+		MF_playmusic( song(str), local(int), channel(int), repeats(int) )	// Plays a song on a channel (local 0 = in the main game folder, 1 = in a levelpack's folder) (repeats 0 = plays forever)
+		MF_playsound( sound(str) )								// Plays a sound
+		MF_playsound_channel( sound(str), channel(int) )		// Plays a sound on a specific channel
+		MF_playsound_freq( sound(str), frequency(int) )			// Plays a sound at a given frequency (default 44000, range 1 - 100 000)
+		MF_playsound_full( sound(str), panning(int), position(int), frequency(int) )	// Plays a sound with various extra variables
+		MF_playsound_musicvolume( sound(str), channel(int) )	// Plays a sound on a specific channel using the music volume setting instead of the sound volume setting
+		MF_stopsound( sound(str) )								// Stops a sound
+
+	GRAPHICS:
+		TEXT & LETTERS:
+			MF_creditsletter( letter(int), x(int), y(int), layer(int), type(int), lifetime(int), group(str) ) -> fixed(int)	// Creates a large letter, with various different visual effects based on type
+			MF_creditsletterclear( group(str) )					// Removes all large letters of a specific group
+			MF_gettextwidth( text(str), size(int) ) -> width(int)	// Returns the width of a given string at a given font sizes when rendered using the non-pixel font
+			MF_letter( letter(int), owner(int), group(str), x(int), y(int), layer(int), sliding(bool) ) -> fixed(int)	// Creates a small letter; if owner is the fixed value of an UI element, the letter is positioned relative to that (use value 0 if you don't want that)
+			MF_letterclear( group(str) )						// Removes all small letters of a specific group
+			MF_letterhide( group(str), status(int) )			// Adjusts the visibility of letters/text in a specific group (status 0 = invisible, 1 = visible)
+		
+		COLOURS:
+			MF_defaultcolour( fixed(int) )						// Sets the colour coefficient of an object to white
+			MF_getpalettedata() -> file(str), root(int)			// Returns the current palette in use (file extension included) (root 0 = palette in a levelpack folder, 1 = palette in the main folder)
+			MF_getpalettename() -> name(str)					// Returns the filename of the current palette (without extension)
+			MF_loadpalette( path(str), file(str) )				// Loads a new palette (file needs extension) (doesn't update the palette root data)
+			MF_setbackcolour()									// Refreshes the colours of most of the UI elements and such
+			MF_setcolour( fixed(int), colour_x(int), colour_y(int) )	// Sets the colour of an object from the current palette
+			MF_setcolourfromstring( fixed(int), colour(str) )	// Sets the colour of an object from the current palette (colour formatted as "x,y")
+			MF_updatelevelcolour( fixed(int) )					// Refreshes the colour of a level icon
+			MF_updatelevelcolours()								// Refreshes the colours of all level icons
+		
+		SPRITES:
+			MF_changesprite( fixed(int), sprite(str), root(bool) )	// Loads a new sprite for an object (root false = levelpack folder, true = main game sprite folder) (sprite should be e.g. 'baba', the game will automatically handle the rest)
+			MF_defaultsprite( fixed(int), bank(int), slot(int), sprite(str) )	// Loads a new sprite for an object into a specific bank & slot from the main game sprite folder (the animation system is silly, ask Hempuli for info)
+			MF_findsprite( file(str), root(bool) ) -> found(bool)	// Checks whether a specific sprite file can be found (file needs extension) (root false = levelpack folder, true = main game sprite folder)
+			MF_loadsprite( fixed(int), file(str), bank(int), root(bool) )	// Loads three sprite files (file_1.png, file_2.png and file_3.png) into a given bank in a non-in-game object (root false = levelpack folder, true = main game sprite folder)
+			MF_restoredefaults( fixed(int), name(str), root(bool) )	// Loads sprites based on the given name to an in-game object (root false = levelpack folder, true = main game sprite folder)
+		
+		VISIBILITY:
+			MF_specialvisible( fixed(int), status(int) )		// Sets the visibility status of a non-in-game object (status 0 = invisible, 1 = visible)
+			MF_specialvisible_string( group(str), status(int) )	// Sets the visibility status of all non-in-game objects with GROUP equal to 'group'  (status 0 = invisible, 1 = visible)
+			MF_visible( group(str), status(int) )				// Sets the visibility status of all UI elements with GROUP equal to 'group' (status 0 = invisible, 1 = visible)
+		
+		MF_backimagepos( x(int), y(int) )						// Sets the position of the background image to x,y
+		MF_movebackimage( x(int), y(int) )						// Offsets the background image by x,y
+		MF_loadbackimage( filename(str) )						// Creates a new background image
+		MF_setdepthcolour( fixed(int), colour_x(int), colour_y(int), offset(int) )	// Sets the colour of an object from the palette, except with the brightness offset by a value
+		MF_setshader( fixed(int), type(str) )					// Sets the shader effect of an object (options are none,add,subtract,monochrome)
+
+	CONTROLS:
+		KEYBOARD & MOUSE:
+			MF_keydown( name(str) ) -> isdown(bool)				// Returns whether a keyboard key is pressed or not
+			MF_keyid( id(int) ) -> name(str)					// Returns the keyboard key name associated with a given numeric id
+			MF_mouse() -> x(int), y(int)						// Returns the mouse position
+			MF_mousedown( button(int) ) -> isdown(bool)			// Returns whether a mouse button is down (button 1 = left button, 2 = right button, 3 = middle button)
+		
+		GAMEPAD:
+			MF_gamepadbuttonid( name(str) ) -> id(int)			// Returns the id associated with a gamepad button
+			MF_gamepadprofilename( id(int) ) -> name(str)		// Returns the name of a gamepad button id on the current gamepad profile
+			MF_gamepadprofilename_string( name(str) ) -> name(str)	// Converts a raw gamepad button name into its corresponding name on the current gamepad profile
+			MF_gpad_profile_raw_to_string( id(int) ) -> name(str)	// Converts a gamepad button id to a profile-specific name
+			MF_gpad_profile_string_to_raw( name(str) ) -> id(int)	// Converts a gamepad button profile-specific name to an id
+			MF_gpad_raw_to_string								// Converts a gamepad button id to its raw name
+			MF_gpad_string_to_raw								// Converts a gamepad button raw name to its id
+			MF_profilefound() -> found(bool)/nil, name(str)		// Returns the name of the profile of the current gamepad if such exists (found true = profile found, false = profile not found, nil = no gamepad detected)
+
+	UI:
+		BUTTONS:
+			MF_buttonicon( fixed(int), image(int), group(str) ) -> fixed(int)	// Creates a visual icon for an UI element (i.e. button) (check out values.lua for which number corresponds to which icon)
+			MF_buttonletterclear( fixed(int) )					// Removes all text & icons on a given UI element
+			MF_disablebutton( func(str), status(int) )			// Sets the disabled status of every visible button with BUTTONFUNC equal to the 'func' parameter (status 0 = not disabled, 1 = disabled)
+			MF_disablebuttons( status(int) )					// Sets the disabled status of all visible buttons (status 0 = not disabled, 1 = disabled)
+			MF_getbutton( func(str) ) -> { fixed(int) }			// Returns a table of all UI elements (except button edge graphics) with BUTTONFUNC equal to the 'func' parameter
+			MF_getbuttongroup( name(str) ) -> { fixed(int) }	// Returns a table of all UI elements with BUTTONID equal to the 'name' parameter
+			MF_removebutton( func(str) )						// Removes every visible button with BUTTONFUNC equal to the 'func' parameter
+			MF_updatebuttonicon( fixed(int), image(int) )		// Updates every icon on an UI element to the given image (check values.lua to see which value corresponds to which image)
+		
+		THUMBNAILS:
+			MF_clearthumbnails( group(str) )					// If 'group' is an empty string, removes all thumbnail icons; otherwise removes all thumbnail icons with GROUP equal to 'group'
+			MF_clearthumbnail_withowner( fixed(int) )			// Destroys all thumbnail icons of a given UI element
+			MF_thumbnail( path(str), image(str), id(int), x(int), y(int), owner(int), colour_x(int), colour_y(int), offset_x(int), offset_y(int), group(str), targetobject(str) )	// Creates a thumbnail icon for an UI element ('owner' should be said UI element's fixed value); 'image' is without file extension; x & y only matter if 'owner' is zero; 'targetobject' is basically metadata and corresponds to e.g. BUTTONNAME on buttons
+			MF_thumbnail_loadimage( fixed(int), bank(int), slot(int), path(str) )	// Updates the sprite in a given bank & slot for a non-in-game object
+			MF_thumbnail_updatecolour( targetobject(str), colour_x(int), colour_y(int) )	// Updates the colour of every thumbnail icon with BUTTONNAME equal to 'targetobject' (see MF_thumbnail() for some info about 'targetobject') 
+			MF_thumbnail_updatesprite( targetobject(str), path(str) )	// Loads a new sprite to bank 0 for thumbnail icons with BUTTONNAME equal to 'targetobject'; the slot used for the sprite is equal to the 'id' given to the thumbnail during its creation (corresponds to XPOS on in-game objects); there are some special thumbnails that aren't affected by this (e.g. quickbar thumbnails)
+			MF_visible_thumbnail( group(str), status(int) )		// Sets the visibility status for all thumbnail icons with GROUP equal to 'group' (status 0 = invisible, 1 = visible); if 'group' is an empty string, affects all thumbnail icons
+		
+		MF_clearcontrolicons( id(int) )							// Removes all control hints with EFFECT equal to 'id'
+		MF_menubackground( status(bool) )						// Sets the visibility status of the semi-transparent background overlay (status true = visible, false = invisible)
+		MF_removecounter( func(str) )							// Removes every counter object with BUTTONFUNC equal to 'func'
+		MF_setpagemenu( menu(str) ) -> page(int)				// If the menu name currently stored is different from 'menu', the current page is set to 0 and the currently stored menu name is changed to 'menu'; in either case, returns the current page number
+
+	SYSTEM:
+		FILES:
+			MF_dirlist( path(str) ) -> { folder(str) }			// Returns the table of folders in the given path; the path must end in * (e.g. "Data/Worlds/*") for this to work, and every folder will be formatted as "[foldername]"
+			MF_filelist( path(str) ) -> { file(str) }			// Returns a table of files in the given path; the path must define the file extension & name of the files being looked for (if you want to return a table with all files in the folder, use *.* (e.g. "Data/Palettes/*.*"))
+			MF_findfile( path(str) ) -> found(bool)				// Returns a boolean value that indicates whether the given file exists (found false = file not found, true = file found)
+			MF_read( storage(str), group(str), item(str) ) -> result(str)	// Reads a data entry from one of the storage INIs (options for 'storage' are level, world, save, settings & lang)
+			MF_setfile( storage(str), path(str) )				// Changes the file a given storage INI is reading (options for 'storage' are level, world, save, settings & lang)
+			MF_store( storage(str), group(str), item(str), value(str) )	// Stores a string in one of the entries in the given storage INI (options for 'storage' are level, world, save, settings & lang)
+		
+		GENERAL:
+			MF_loop( name(str), loops(int) )					// Runs an MMF-based loop; basically only useful if you have the source code
+			MF_parsestring( string(str) ) -> { entry(str) }		// Parses a string into a table (using commas as delimiters)
+			MF_random( min(int), max(int) ) -> value(int)		// Returns a random value between 'min' and 'max' (inclusive); this can be used if you want to avoid offsetting the lua random seed
+		
+		MF_deletesave_group( group(str) )						// Removes a group in the save INI file
+		MF_deletesave_item( group(str), item(str) )				// Removes an item in a given group in the save INI file
+		MF_getglobalstr( id(int) )								// Returns one of MMF's global strings; pretty useless
+		MF_initagain()											// Refreshes and re-initializes the entire lua codebase; use this if you want to return to non-modded state after using modded levelpack files (note that this won't work if the actual game folder lua files are changed!!)
+		
+
+	MISC:
+		MF_alert( text(str) )									// Writes a message in the debug log (but the debug log is invisible outside of MMF so use print() instead)
+		MF_debug( x(int), y(int), style(int) )					// Draws a little debug icon on the tile at x,y; the available styles are 0, 1 and 2, I think
+		MF_debugmode( status(int) )								// Sets the debug mode status (status 0 = debug mode off, 1 = debug mode on)
+		MF_getversion() -> version(str)							// Returns the current version string
+		MF_unfinished() -> status(bool)							// If debug mode is off, returns if you're running a test build or not (status false = normal version, true = test version)
+
+	ONLINE:
+		MF_getlevelcount() -> count(int)						// Returns the number of levels on the currently-browsed online list
+		MF_getlistlevel( id(int) ) -> id(str), name(str), author(str), subtitle(str), tagline(str), thumbnail(str)	// Returns the metadata of a given level on the currently-browsed online list
+		MF_getpagecount() -> count(int)							// Returns the number of pages on the currently-browsed online list
+
+	HACKS:
+		// These are all so messy and random that I'm not even going to comment them. Best left unused
+		MF_hack_removecredit()
+		MF_hack_movecredit()
+		MF_thumbnail_tofront_hack()
+		MF_updateobjlistname_hack()
