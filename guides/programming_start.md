@@ -41,7 +41,7 @@ Note that some modhooks will be called by MMF directly instead of in a Lua file.
 ### Should you use mod hooks or override functions?
 Personally, I try to gravitate towards using mod hooks and/or my own functions and variables when implementing mods. But most of the time, my mod idea is either too complex to be limited to mod hooks, or it requires modifying a specific part of code that modhooks cannot access. So expect to override functions if your mod is pretty involved.
 
-
+## Lua file organization
 ### My Lua file conventions
 This is just my personal convention that I use to organize my Lua files. Given that there are pros and cons to both overriding functions and modhooks + other nonconflicting methods, I find it better to organize my Lua files to distinguish between the two. You don't have to follow them, especially if you just want to make a simple mod. But if your mod grows in complexity, maybe this convention can help in organization.
 
@@ -49,15 +49,34 @@ This is just my personal convention that I use to organize my Lua files. Given t
 - Other files in your mod should *not* contain overwritten functions. You can put anything else in them. Modhooks, custom functions, custom variables, etc. 
   - Name these files in a way such that there's little probability that another modder will have the exact filename. For example, my modpack has Lua files that start with "`th_`" as a code to indicate that these files relate to the `THIS` mod. It's a bit of a weird naming scheme, but thats why it works as a unique name.
   
+### Using `require()`
+If you are familiar with Lua, it has a module system used for importing different lua files via `require()`. One thing that @Witchy Scholar (Evena)#9792 found is that all require paths are relative to where the game is installed (the same folder containing `Baba Is You.exe` and the `Data` folder). We could use this to load Lua files in subdirectories of `<levelpack folder>/Lua`. Say I have a module called `moduletest.lua` located in `Lua/subfolder` with the levelpack folder `testworld`. I can load the module using:
+```lua
+local moduletest = require("Data/Worlds/testworld/Lua/subfolder/moduletest")
+```
+
+
+However if you plan to distribute your mod to be used in different levelpacks, the above path will not be the same per levelpack. To solve this, we can modify the above code to get the location of the script calling `require()` in order to load `moduletest.lua`. 
+
+```lua
+function script_path()
+    local str = debug.getinfo(1).source:sub(2)
+    return str:match("(.*/)")
+ end
+
+local moduletest = require(script_path().."/subfolder/moduletest")
+```
+
+  
 ## Printing debug from output
 There are a few different methods for printing output for debug purposes. The first one is more simple:
 
 ```lua
 timedmessage("message", x, y)
 ```
-This displays "message" on screen at the specified coordinates for a few seconds. If x and y are omitted, the text will display at the top left corner.
+This displays "message" on screen at the specified coordinates for a few seconds. If x and y are omitted, the text will display at the top left corner. Can be used if you just want a quick output. However, printing different messages with `timedmessage()` will cause the text to be unreadable. 
 
-A more advanced way allows you to see `print()` statements in the terminal. A way to set this up:
+A more advanced way allows you to see `print()` statements line by line in the terminal. A way to set this up:
 1) Download [git-bash](https://git-scm.com/downloads)
 2) Run the git-bash terminal
 3) In the terminal, `cd` to where "Baba Is You.exe" is.
@@ -65,3 +84,18 @@ A more advanced way allows you to see `print()` statements in the terminal. A wa
 	```
 	"Baba Is You.exe" | cat
 	```
+This will show a live feed of any `print()` statements the game encounters in its code and/or your code.
+
+## Reloading your mod after making changes
+Everytime you make changes to you lua files, the game will not update your changes until you reload them. The most thorough way of doing this is to restart the game. **However** if you confided your mods to a levelpack, it's more simple:
+
+1. Assuming you are in the level editor screen: Click on *Menu -> Return to Level List -> Return to Levelpack List*
+2. *Edit Levelpacks ->* Click on your levelpack
+
+Or an even faster way:
+1. Assuming you are in the level editor screen: Click on *Menu -> Return to Main Editor Menu*
+2. *Edit Levelpacks ->* Click on your levelpack
+
+The game will unload your mods the moment you go to the levelpack list menu or any menu before that. It then loads your mods the moment you select your levelpack to edit.
+
+**Note:** when it comes to reloading *sprites* after adding them, I found that the above trick doesn't work and resort to restarting the game instead. If there's a faster way of reloading sprites, let me know.

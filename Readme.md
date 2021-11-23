@@ -16,7 +16,7 @@ This guide will assume a few things:
 
 ## Guides
 (In recommended reading order)
-- [Setting up your modding enviornment](guides/setup.md)
+- [Getting Started](guides/setup.md)
 - [Basics of using Lua to mod Baba Is You](guides/programming_start.md)
 - [Adding a custom object to the level pallete](guides/adding_obj_to_editor.md)
 - [Getting started on creating a custom word](guides/custom_word_start.md)
