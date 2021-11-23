@@ -102,8 +102,7 @@ From `sents`, extract all combinations of texts. With the above example, this wi
 
 ### Part A
 The output of `calculatesentences()` gets passed into this step. For each sentence, the game scans through each word in order while inserting those that follow a valid syntax into a final sentence. This "final sentence" is a list that gets submitted to Step 5 for insertion into `featureindex`. The below diagram illustrates how the game updates its internal state in order to check syntax when scanning through a sentence. Some extra notes:
-- Valid sentences always start from Node 0 to Node -1 without getting stuck.
-- If syntax checking gets stuck in a node other than -1, end the syntax checking by going to node -1 and go to Part B of Step 4.
+- When you reach Node -1, submit whatever you have in the "finalized" sentence to Step 5. Also if you are on the last word of your sentence, then you can skip Part B of Step 4 for your sentence. 
 
 <img src="../images/Baba syntax diagram.png" width="1920"/>
 
