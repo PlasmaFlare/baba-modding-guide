@@ -22,7 +22,13 @@ Below is a rule stored for **"keke on baba and not near me is you"**:
     },
 
     -- rule[3] = unitids
-    {<unitid of "keke">, <unitid of "is">, <unitid of "you">, <unitid of "on">, <unitid of "baba"> ... },
+    {
+      {<unitid of "keke">}, 
+      {<unitid of "is">}, 
+      {<unitid of "you">}, 
+      {<unitid of "on">}, 
+      {<unitid of "baba">} ... 
+    },
 
     -- rule[4] = tags
     {}
@@ -38,7 +44,15 @@ A breakdown of each of the components:
   - `cond[2]` = List of parameters for the condition. 
     - This is present in infix conditions ("on","near","above" etc) but not present in prefix conditions ("lonely", "idle", "seldom" etc)
     - A parameter can have "not " prepended. ("baba facing **not fence** is blue")
-- `rule[3]` = List of unitids for all text units involved in the original formation of the rule.
+- `rule[3]` = List of all text unitids involved in the original formation of the rule.
+  - In the above example, each unit id entry is within its own table. This might seem excessive at first. However, in the case where any of the words in the rule are actually formed by *letter texts*, there will be multiple unitids *per entry to `rule[3]`*. If for example we have `me I S Y O U`, then `rule[3]` would look like this:
+    ```lua
+    {
+      {<unitid of "me">}, 
+      {<unitid of "I">, <unitid of "S">}, 
+      {<unitid of "Y", <unitid of "O">, <unitid of "U">}, 
+    }
+    ```
 - `rule[4]` = List of tags. Tags are strings only used within the game's code to arbitrarily mark rules for implementing certain words. Some tags I've seen:
   - `base` - indicates that this is a baserule ("text is push", "level is stop")
   - `mimic` - indicates that this is a rule generated from "mimic" copying another rule.
