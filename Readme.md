@@ -20,6 +20,8 @@ This guide will assume a few things:
 - [Basics of using Lua to mod Baba Is You](guides/programming_start.md)
 - [Adding a custom object to the level pallete](guides/adding_obj_to_editor.md)
 - [Getting started on creating a custom word](guides/custom_word_start.md)
+  - [Implementing a custom property](guides/adding_properties.md)
+  - [Implementing a custom condition](guides/adding_conditions.md)
 ## References
 - [Brief overview of the game's Lua files](references/lua%20files.md)
 - [Common object properties](references/editor_obj_settings.md)

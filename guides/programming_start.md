@@ -30,44 +30,25 @@ table.insert(mod_hook_functions["level_start"],
 ```
 The full list of modhooks is defined in `modsupport.lua`. In the above code, replace `"level_start"` with whichever modhook you want to register your own function.
 
-### Finding when a modhook is called
+#### Finding when a modhook is called
 If you want to see where the modhooks are actually being called, search for the text:
 ```lua
 do_mod_hook("<replace with your modhook>"
 ```
 Note that some modhooks will be called by MMF directly instead of in a Lua file. So you might not see the above search for some of the modhooks.
 
-
 ### Should you use mod hooks or override functions?
 Personally, I try to gravitate towards using mod hooks and/or my own functions and variables when implementing mods. But most of the time, my mod idea is either too complex to be limited to mod hooks, or it requires modifying a specific part of code that modhooks cannot access. So expect to override functions if your mod is pretty involved.
 
-## Lua file organization
-### My Lua file conventions
+# Baba modding random tips and tricks
+## My Lua file conventions
 This is just my personal convention that I use to organize my Lua files. Given that there are pros and cons to both overriding functions and modhooks + other nonconflicting methods, I find it better to organize my Lua files to distinguish between the two. You don't have to follow them, especially if you just want to make a simple mod. But if your mod grows in complexity, maybe this convention can help in organization.
 
 - Place overwritten functions in your Lua file named exactly as the Lua file you took the function from. If you wanted to override `testcond()` from `conditions.lua`, make new file in `<your levelpack folder>/Lua` called `conditions.lua` and place it there.
 - Other files in your mod should *not* contain overwritten functions. You can put anything else in them. Modhooks, custom functions, custom variables, etc. 
   - Name these files in a way such that there's little probability that another modder will have the exact filename. For example, my modpack has Lua files that start with "`th_`" as a code to indicate that these files relate to the `THIS` mod. It's a bit of a weird naming scheme, but thats why it works as a unique name.
-  
-### Using `require()`
-If you are familiar with Lua, it has a module system used for importing different lua files via `require()`. One thing that @Witchy Scholar (Evena)#9792 found is that all require paths are relative to where the game is installed (the same folder containing `Baba Is You.exe` and the `Data` folder). We could use this to load Lua files in subdirectories of `<levelpack folder>/Lua`. Say I have a module called `moduletest.lua` located in `Lua/subfolder` with the levelpack folder `testworld`. I can load the module using:
-```lua
-local moduletest = require("Data/Worlds/testworld/Lua/subfolder/moduletest")
-```
 
 
-However if you plan to distribute your mod to be used in different levelpacks, the above path will not be the same per levelpack. To solve this, we can modify the above code to get the location of the script calling `require()` in order to load `moduletest.lua`. 
-
-```lua
-function script_path()
-    local str = debug.getinfo(1).source:sub(2)
-    return str:match("(.*/)")
- end
-
-local moduletest = require(script_path().."/subfolder/moduletest")
-```
-
-  
 ## Printing debug from output
 There are a few different methods for printing output for debug purposes. The first one is more simple:
 
