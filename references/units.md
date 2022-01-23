@@ -62,6 +62,7 @@ unit.strings[<value>]
 A table of strings that represent essential information. Replace `<value>` with a variable in `constants.lua` under the "Object Strings" section. Some common ones:
 - `NAME` - the name of the object. Text objects *do not* have "text_" prepended (Ex: "baba", "float", "push").
 - `UNITNAME` - the name of the object. Text objects have "text_" prepended (Ex: "baba", "text_float", "text_push").
+  - Note: you should also note that there is also a function called `getname()`, [which I detailed below](#getnameunit)
 - `UNITTYPE` - in most cases, either "object" or "text"
 
 ### unit.flags
@@ -81,6 +82,12 @@ The y coordinate of the unit relative to the window. unit.y differs from `unit.v
 local c1, c2 = getcolour(unitid, value)
 ```
 Gets the current color of the unitid. If `value` is omitted, it returns the base color. If `value == "active"`, it returns the active color. Read more about colors [here](editor_obj_settings.md#color).
+
+### getname(unit)
+```lua
+local name = getname(unit) -- input is a "unit" not a unitid
+```
+Yet another way to get the name of a unit. By default it returns `unit.strings[UNITNAME]`. However, if `unit.strings[UNITTYPE] == "text"`, then `getname(unit)` will return "text".
 
 ### unit.direction
 This is Multimedia Fusion's way of specifying which sprite to display for the unit. Values range from 0-31. Below is a visualization of which numbers correspond to which sprites:

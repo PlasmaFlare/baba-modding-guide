@@ -14,7 +14,7 @@ From here on out, it really depends on what your property does. Some general adv
 - Research. You can use this guide as an aid for basic concepts. But don't be afraid of looking through the source code. 
 - Look into how existing properties implement certain aspects of your property. 
     - If for instance I wanted to make a property that destroys texts blocks while spawning letters in its place, I would research on how "defeat" destroys "you" objects and "more" spawns new objects.
-    - If there are no existing properties that do this, you'll need to do some further digging. Look at the [References section](../readme.md) for some pages/links detailing common concepts in the game's code. And as always, don't be afraid to look at the source code is well!
+    - If there are no existing properties that do this, you'll need to do some further digging. Look at the [References section](../Readme.md) for some pages/links detailing common concepts in the game's code. And as always, don't be afraid to look at the source code is well!
 - Form a broad picture of what your implementation would look like. 
   - Which functions would you need to override or which modhooks would you need to use? 
   - Would you need to update code of existing properties to make your property compatable?

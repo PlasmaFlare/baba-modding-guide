@@ -31,7 +31,7 @@ At the start of `code()`, the game determines what I call the "initial firstword
 The reason of my distinction of "initial firstwords" is because not all firstwords are initial firstwords. This will be explained in Step 4, Part B.
 
 ### docode()
-After putting all initial firstwords into a list called `firstwords`, it passes that list into `docode()`. While `code()` is the entry point to start parsing, `docode()` is the meat of the parsing logic. The next few sections will be within the scope of `docode()`. A brief overview on what the function does.
+After putting all initial firstwords into a list called `firstwords`, it passes that list into `docode()`. While `code()` is the entry point to start parsing, `docode()` is the meat of the parsing logic. The next few steps will be within the scope of `docode()`. A brief overview on what the function does.
 1) Use the list of initial firstwords to determine all strings of text units (including all combinations from stacked texts).
 2) Go through each string to extract valid rules.
 3) Construct rule objects, as defined [here](rules.md#rule-format), and submit to `featureindex` to make the rule avaliable globally.
@@ -56,6 +56,17 @@ In basic terms, the game's code refers a "sentence" as a list of texts, *regardl
 ```
 - Notice how the full sentence has some texts before and after the "baba is you" that are not valid in syntax. This is expected. `calculatesentences()` does not care about syntax. It only returns lists of horizontal or vertical adjacent text units.
 - The "width" parameter (the last entry of each word object), is always 1 for normal texts. If the `text name` is actually spelled out with letter texts, it is the number of the letter texts involved.
+- Notice how the `{<unitid>}` field of each word is in a table of its own? This might seem a bit cumbersome at first. However, if the `text name` is spelled in letter texts, the table becomes a list of unitids corresponding to the letter texts involved in spelling that word
+  - Ex: For `B A BA is Y O U`, the sentence would look like:
+    ```lua
+    {
+        {"baba", 0, {<unitid for B>, <unitid for A>, <unitid for BA>}, 3},
+        {"is",   1, {<unitid for is>}, 1},
+        {"you",  2, {<unitid for Y>, <unitid for O>, <unitid for U>}, 3},
+        -- Notice the last entry for each word represents the length of the list of unitids
+    }
+    ```
+  - In general, when you see a text unitid inside its own table for no apparent reason, its because the table could have multiple text unitids that spell out the overall word.
 
 ### Implementation of `calculatesentences()`
 You can divide `calculatesentences()` into two phases

@@ -71,12 +71,18 @@ This will show a live feed of any `print()` statements the game encounters in it
 Everytime you make changes to you lua files, the game will not update your changes until you reload them. The most thorough way of doing this is to restart the game. **However** if you confided your mods to a levelpack, it's more simple:
 
 1. Assuming you are in the level editor screen: Click on *Menu -> Return to Level List -> Return to Levelpack List*
-2. *Edit Levelpacks ->* Click on your levelpack
+2. Click on your levelpack
 
-Or an even faster way:
+Or another  way:
 1. Assuming you are in the level editor screen: Click on *Menu -> Return to Main Editor Menu*
 2. *Edit Levelpacks ->* Click on your levelpack
 
 The game will unload your mods the moment you go to the levelpack list menu or any menu before that. It then loads your mods the moment you select your levelpack to edit.
 
 **Note:** when it comes to reloading *sprites* after adding them, I found that the above trick doesn't work and resort to restarting the game instead. If there's a faster way of reloading sprites, let me know.
+
+
+## Lua file load order
+Lua files in `<your levelpack folder>/Lua` are loaded into the game's internal database in ASCIIbetical-order (yes, [this is an actual term](https://www.pcmag.com/encyclopedia/term/asciibetical)). This means that if you want to have certain Lua files load before or after others, you'll need to name them a bit oddly so that they are first or last ASCIIographically (ok, that I made up lol).
+
+Looking at the old [ascii table](https://www.asciitable.com/), naming the Lua file with the first character between `!` and `@` would make it run before other files, while characters between `{` and `~` would run after. I've seen people do `!<filename>.lua`. Personally, I like to do `(<filename>).lua` for loading files first and `{<filename>}.lua` for loading files last.

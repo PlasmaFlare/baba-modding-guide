@@ -27,6 +27,8 @@ This guide will assume a few things:
 - [Common object properties](references/editor_obj_settings.md)
 - [Units](references/units.md)
 - [Rules](references/rules.md)
+- [Major Function Call Order](references/order%20of%20operations.md)
+- [Undo System](references/undo%20system.md)
 - [How Rule Parsing Works (WARNING: Advanced)](references/parsing.md)
 - [Order of Operations (link to baba wiki)](https://babaiswiki.fandom.com/wiki/Order_of_Operations)
 - [MMF Functions (courtesy of Hempuli)](references/MF_documentation.txt)
