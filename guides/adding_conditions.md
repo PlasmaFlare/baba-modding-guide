@@ -1,29 +1,76 @@
 # Implementing a condition
 This assumes you added your custom condition through [this guide](custom_word_start.md). I also recommend looking through [the rule specification](../references/rules.md) as reference.
 
-Unlike the guide on adding properties, this guide will feel a bit more specific since everything related to conditions is handled in one function: `testcond()`. This is a function in `conditions.lua` that gets called very often whenever the game wants to evaluate a set of conditions (based on the conditional texts seen in game) on a single object. It simply returns `true` or `false` if the unit fulfils the set of conditions. 
+Everything related to conditions is handled in the file `conditions.lua`. `testcond()` is a function that gets called very often whenever the game wants to evaluate a set of conditions (based on the conditional texts seen in game) on a single object. You rarely have to modify this function, however; all conditions in the game have their own functions inside of a table called `condlist` that get called by `testcond()`. You can add individual conditions to this table without having to copy the entire `conditions.lua` file.
 
-Note that as of 11/14/21, there isn't a mod hook for this function. But Hempuli plans to refactor `testcond` to "be less messy" sometime in the future. I'm guessing he plans to reduce the amount of repeated code and (possibly) provide a mod hook to implement your own conditions. But I don't know the details yet. For now, you need to overwrite this function in your own lua file.
+Each function simply returns `true` or `false` if the unit fulfils one individual condition, and `testcond()` returns whether the unit fulfils all conditions in the entire set.
+
+## Base form of a condition function
+<details>
+<summary>Adding a condition function to <code>condlist</code>. Click to expand.</summary>
+
+```lua
+-- add "mycondition" to condlist
+condlist["mycondition"] = function(params,checkedconds,checkedconds_,cdata)
+    -- Read necessary information about the unit off of cdata, see full list below
+    local unitid,x,y = cdata.unitid,cdata.x,cdata.y
+
+    -- Calculate whether the unit fulfils this condition, checking each name in the list "params" if this is an infix condition
+    local success = false
+    
+    -- Return whether the unit has fulfilled the condition
+    return (success == true),checkedconds
+end
+```
+</details>
+
+For conditions that have been inverted by a "not" text, `testcond()` will automatically negate the condition function's output. You can manually check if the condition is inverted inside its function if different behavior is needed, but keep in mind that the result will be the opposite of whatever you return.
+
+<details>
+<summary>List of all <code>cdata</code> entries and how to read them. Click to expand.</summary>
+
+```lua
+local name      = cdata.name
+local unitid    = cdata.unitid         
+local x,y       = cdata.x,cdata.y
+local dir       = cdata.dir
+local limit     = cdata.limit           -- This is to be passed to `testcond()` if your condition function checks other conditions. If it reaches 80, an infinite loop is triggered.
+local extras    = cdata.extras
+local surrounds = cdata.surrounds       -- This contains data about objects that surround the current level on the outer map. See implementation of "near".
+local subtype   = cdata.subtype         -- This is used by "power[abc]ed" conditions, where "[abc]" can be any string that matches a unique condition text (you must modify testcond() to support this)
+local conds     = tostring(cdata.conds) -- The list of all conditions in the rule that this condition is part of.
+local i         = cdata.i               -- The index of this condition into the aforementioned list of conditions.
+local notcond   = cdata.notcond         -- Whether this condition has been inverted by a "not" text.
+local debugname = cdata.debugname       -- This is not used by any base game conditions. It's set to the name of the rule's first condition.
+
+-- You can read multiple entries in a single line like this
+local name,unitid,x,y = cdata.name,cdata.unitid,cdata.x,cdata.y
+```
+</details>
+
+---
 
 ## Example of adding custom prefix
-Let's say that I want to implement a prefix called "maybe", where its similar to "often" and "seldom" but it only has a 50% chance. First, I would [add the text block to the editor](adding_obj_to_editor.md). Then, I would look for how "seldom" is implemented. This can be found in `testcond()` with the below code snippet. The relevant pieces of code I marked with comments:
+Let's say that I want to implement a prefix called "maybe", where its similar to "often" and "seldom" but it only has a 50% chance. First, I would [add the text block to the editor](adding_obj_to_editor.md). Then, I would look for how "seldom" is implemented. This can be found in the `seldom` function inside `condlist` with the below code snippet. The relevant pieces of code I marked with comments:
 <details>
 <summary>Code Block for "seldom" implementation. Click to expand.</summary>
 
 ```lua
-elseif (condtype == "seldom") then --- (A)
-    valid = true
+seldom = function(params,checkedconds,checkedconds_,cdata)
+    local unitid,x,y,conds,i = cdata.unitid,cdata.x,cdata.y,tostring(cdata.conds),cdata.i
     
     if (condstatus[tostring(conds)] == nil) then
         condstatus[tostring(conds)] = {}
     end
     
-    --- (B)
+    -- (A)
     local rnd = fixedrandom(1,6)
-    --- end (B)
+    -- end (A)
     
     local d = condstatus[tostring(conds)]
+    -- (B)
     local id = "seldom" .. "_" .. tostring(i)
+    -- end (B)
     
     if (unitid ~= 2) then
         id = id .. "_" .. tostring(unitid)
@@ -37,74 +84,26 @@ elseif (condtype == "seldom") then --- (A)
         d[id] = rnd
     end
     
-    --- (C)
-    if (rnd ~= 1) then
-        if (orhandling == false) then
-            result = false
-            break
-        end
-    elseif orhandling then
-        orresult = true
-    end
-    --- end (C)
-
-elseif (condtype == "not seldom") then -- (D)
-    valid = true
-    
-    if (condstatus[tostring(conds)] == nil) then
-        condstatus[tostring(conds)] = {}
-    end
-    
-    local rnd = fixedrandom(1,6)
-    
-    local d = condstatus[tostring(conds)]
-    local id = "seldom" .. "_" .. tostring(i)
-    
-    if (unitid ~= 2) then
-        id = id .. "_" .. tostring(unitid)
-    else
-        id = id .. "_" .. tostring(unitid) .. tostring(x) .. tostring(y)
-    end
-    
-    if (d[id] ~= nil) then
-        rnd = d[id]
-    else
-        d[id] = rnd
-    end
-    
-    if (rnd == 1) then
-        if (orhandling == false) then
-            result = false
-            break
-        end
-    elseif orhandling then
-        orresult = true
-    end
+    -- (C)
+    return (rnd == 1),checkedconds
+    -- end (C)
+end,
 ```
 </details>
 
-(A) and (D) check for the condition type being "seldom" or "not seldom". This is part of a giant chain of if-else blocks that covers every single condition in the game. The names of each condition are taken directly from the text unit of the condition, with the "not" variation prepended before the name. So if I name a new object "text_maybe" and set its text type to 7 (See [Text Types](../references/editor_obj_settings.md#text-type)), I can append to the if-else chain this code to implement "maybe":
-
-```lua
-elseif (condtype == "maybe") then
-    -- Some code that we'll fill in later
-elseif (condtype == "not maybe") then
-    -- Some code that we'll fill in later
-end
-```
-
-Since "maybe" is similar in functionality to "seldom", I can copy most of the code for seldom. We see in (B) that `rnd` is a random number between 1-6, and in (C) it checks if `rnd` is not 1 before setting `result = false` (Ignore `orhandling` for now). Making `result = false` makes the entirety of `testcond()` return `false`. So we want to change our copy of (B) to represent a 50% probability:
+Since "maybe" is similar in functionality to "seldom", I can copy most of the code for seldom into the body of our condition's own function. We see in (A) that `rnd` is a random number between 1-6, and in (C) the unit fulfils the condition if `rnd` is equal to 1 (a 1 in 6 chance). So we want to change our copy of (A) to represent a 50% probability:
 ```lua
 local rnd = fixedrandom(1,2)
 ```
+Note that in (B) the condition's name is used to cache the status of this condition for the unit. All that we need to do here is change the name "seldom" to our condition's name "maybe".
 
-The full code that we append to the if-else chain is this:
+The full code that we add to `condlist` is this:
 <details>
 <summary>Click to expand</summary>
 
 ```lua
-elseif (condtype == "maybe") then
-    valid = true
+condlist["maybe"] = function(params,checkedconds,checkedconds_,cdata)
+    local unitid,x,y,conds,i = cdata.unitid,cdata.x,cdata.y,tostring(cdata.conds),cdata.i
     
     if (condstatus[tostring(conds)] == nil) then
         condstatus[tostring(conds)] = {}
@@ -127,49 +126,8 @@ elseif (condtype == "maybe") then
         d[id] = rnd
     end
     
-    --- (C)
-    if (rnd ~= 1) then
-        if (orhandling == false) then
-            result = false
-            break
-        end
-    elseif orhandling then
-        orresult = true
-    end
-    --- end (C)
-
-elseif (condtype == "not maybe") then -- (D)
-    valid = true
-    
-    if (condstatus[tostring(conds)] == nil) then
-        condstatus[tostring(conds)] = {}
-    end
-    
-    local rnd = fixedrandom(1,2)
-    
-    local d = condstatus[tostring(conds)]
-    local id = "maybe" .. "_" .. tostring(i)
-    
-    if (unitid ~= 2) then
-        id = id .. "_" .. tostring(unitid)
-    else
-        id = id .. "_" .. tostring(unitid) .. tostring(x) .. tostring(y)
-    end
-    
-    if (d[id] ~= nil) then
-        rnd = d[id]
-    else
-        d[id] = rnd
-    end
-    
-    if (rnd == 1) then
-        if (orhandling == false) then
-            result = false
-            break
-        end
-    elseif orhandling then
-        orresult = true
-    end
+    return (rnd == 1),checkedconds
+end
 ```
 </details>
 
@@ -181,11 +139,12 @@ Here's another sample code from the game that implements "without". I added some
 <summary>Click to expand</summary>
 
 ```lua
-elseif (condtype == "without") then
-    valid = true
+without = function(params,checkedconds,checkedconds_,cdata)
     local allfound = 0
     local alreadyfound = {}
     local unitcount = {}
+    
+    local name,unitid,notcond = cdata.name,cdata.unitid,cdata.notcond
     
     -- "params" is a list of object names accompaning the infix condition (E.g. If "baba without keke is you", params = {"keke"})
     if (#params > 0) then
@@ -217,8 +176,7 @@ elseif (condtype == "without") then
             
             -- For some reason "X without group is Y" isn't handled. I guess group is jank lol.  
             if (string.sub(pname, 1, 5) == "group") then
-                result = false
-                break
+                return false,checkedconds
             end
             
             if ((b ~= "level") and (b ~= "empty")) or ((b == "level") and (unitcount["level"] > 0)) then
@@ -256,32 +214,32 @@ elseif (condtype == "without") then
                             end
                         end
                     end
-
                 else
                     -- Handles "X without not Y is Z"
                     local foundunits = 0
+                    local targetcount = unitcount[b]
                     
                     for c,d in pairs(unitlists) do
                         -- Since we are handling "not Y", go through every object type that does not match the parameter and do similar checks from above to test the "without" condition.
-                        if (c ~= pname) and (#unitlists[c] > 0) and (c ~= "text") then
+                        if (c ~= pname) and (#unitlists[c] > 0) and (c ~= "text") and (string.sub(c, 1, 5) ~= "text_") then
                             for e,f in ipairs(d) do
                                 if (f ~= unitid) and (alreadyfound[f] == nil) then
                                     alreadyfound[f] = 1
                                     foundunits = foundunits + 1
                                     
-                                    if (foundunits >= unitcount[b]) then
+                                    if (foundunits >= targetcount) then
                                         break
                                     end
                                 end
                             end
                         end
                         
-                        if (foundunits >= unitcount[b]) then
+                        if (foundunits >= targetcount) then
                             break
                         end
                     end
                     
-                    if (foundunits < unitcount[b]) and (alreadyfound[bcode] == nil) then
+                    if (foundunits < targetcount) and (alreadyfound[bcode] == nil) then
                         alreadyfound[bcode] = 1
                         allfound = allfound + 1
                     end
@@ -310,17 +268,17 @@ elseif (condtype == "without") then
         end
     else
         print("no parameters given!")
-        result = false
+        return false,checkedconds
     end
-
-    -- If all parameters are satisfied, then the "without" condition is satisfied. Otherwise, set result = false, making testcond() return false
-    if (allfound ~= #params) then
-        if (orhandling == false) then
-            result = false
-            break
-        end
-    elseif orhandling then
-        orresult = true
+    
+    -- If more than zero parameters are satisfised, then the "not without" condition is NOT satisfied.
+    -- (this result gets inverted by testcond(), so 0 or less means satisfied)
+    if notcond then
+        return (allfound > 0),checkedconds
     end
+    
+    -- If all parameters are satisfied, then the "without" condition is satisfied.
+    return (allfound == #params),checkedconds
+end,
 ```
 </details>
