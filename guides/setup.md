@@ -10,6 +10,7 @@ Not all of these tools are needed to start modding. These are just some tools th
 All baba modding is done within the `Data` folder at whereever the game is installed. If you have the game on Steam:
 - **Windows** - Right click the game in your library, then *Manage -> Browse Local Files*. Navigate to `Data` folder
 - **Mac** - Right click the game in your library, then *Manage -> Browse Local Files*. Right-click on `Baba Is You.app` and pick *Show Package Contents*. Navigate to `Content/Resources/Data`
+- **Linux** - Same as Windows
 
 ### `Data` folder contents
 You'll see a bunch of lua files and various other folders. The lua files contain most of the logic that makes the game work. Feel free to [familiarize with some of these files](../references/lua%20files.md) when you get to modding. But for now you can ignore them.
